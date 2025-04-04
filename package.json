@@ -1,0 +1,17 @@
+{
+  "name": "notify",
+  "version": "1.0.0",
+  "description": "A sample project for sending FCM",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.0",
+    "firebase-admin": "^12.5.0",
+    "uuid": "^11.1.0"
+  }
+}
