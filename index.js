@@ -1,64 +1,54 @@
 import express from "express";
 import { applicationDefault, initializeApp } from 'firebase-admin/app';
-import { getMessaging } from "firebase-admin/messaging";
-import { v4 as uuidv4 } from 'uuid';
+import pkg from 'firebase-admin'; // Import the default export from firebase-admin
+const { credential } = pkg; // Destructure credential from the default export
+import { readDevicePushTokens } from './firestoreUtils.js';
+import { sendNotification } from './sendNotification.js';
+import callUser from './utils/callUser.js';
+
+const serviceAccount = JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT, 'base64').toString('utf-8'));
 
 initializeApp({
-    credential: applicationDefault(),
+    credential: credential.cert(serviceAccount)
 });
 
 const app = express();
-app.use(express.json())
+app.use(express.json());
 
-
-app.post("/send", function (req, res) {
+app.post("/send", async function (req, res) {
+    console.log('body: ', req.body);
     const token = req.body.fcmToken;
-    console.log('token:', token)
     const data = req.body.data;
-    const uuid = uuidv4();
-    console.log('uuid:', uuid);
 
-    // Add uuid to the data payload
-    const updatedData = {
-        ...data,
-        uuid: uuid,
-    };
+    try {
+        const result = await sendNotification(token, data);
+        res.status(200).json({ success: "Success!!", response: result.response });
+    } catch (error) {
+        res.status(400).json({ error: "Failed to send notification", details: error.message });
+    }
+});
 
-    const message = {
-        // notification: {
-        //     title: "Test message",
-        //     body: "Greeting from FCM server",
-        // },
-        data: updatedData, // Use the updated data with uuid
-        android: {
-            priority: 'high',
-            // notification: {
-            //     channelId: 'channelnormal',
-            //     defaultSound: false,
-            // },
-        },
-        // apns: {
-        //     payload: {
-        //         aps: {
-        //             sound: 'notification.wav'
-        //         },
-        //     },
-        // },
-        token: token,
-    };
+app.post('/notify/:deviceToken', async (req, res) => {
+    const { deviceToken } = req.params;
 
-    getMessaging().send(message)
-        .then((response) => {
-            res.status(200).json({
-                success: "Success!!"
-            });
-            console.log("Success sending FCM message");
-        })
-        .catch((error) => {
-            res.status(400);
-            res.send(error);
-            console.log("Failed on sending FCM", error);
-        });
+    try {
+        await callUser(deviceToken, { environment: 'production' }); // Set environment to production
+        res.status(200).send({ message: 'Notification sent successfully' });
+    } catch (err) {
+        const { success, message, error } = err;
+        res.status(500).send({ error: `Failed to send notification: ${success}, ${message}, ${error}` });
+    }
+});
+
+app.get("/devices", async function (req, res) {
+    try {
+        const devices = await readDevicePushTokens();
+        console.log("Devices retrieved:", devices); // Log the retrieved devices
+        res.status(200).json(devices);
+    } catch (error) {
+        console.error("Error fetching devices:", error);
+        res.status(500).json({ error: "Failed to fetch devices" });
+    }
 });
 
 app.listen(3000, function () {

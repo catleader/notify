@@ -1,1 +1,5 @@
 node_modules/
+.env
+smile-dev-service-account.json
+daywork-dev-service-account.json
+VOIP.pem
