@@ -3,3 +3,4 @@ node_modules/
 smile-dev-service-account.json
 daywork-dev-service-account.json
 VOIP.pem
+.idea/

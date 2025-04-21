@@ -1,5 +1,5 @@
 import express from "express";
-import { applicationDefault, initializeApp } from 'firebase-admin/app';
+import { initializeApp } from 'firebase-admin/app';
 import pkg from 'firebase-admin'; // Import the default export from firebase-admin
 const { credential } = pkg; // Destructure credential from the default export
 import { readDevicePushTokens } from './firestoreUtils.js';
