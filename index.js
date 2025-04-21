@@ -8,6 +8,8 @@ import callUser from './utils/callUser.js';
 
 const serviceAccount = JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT, 'base64').toString('utf-8'));
 
+const port = process.env.PORT || 8080;
+
 initializeApp({
     credential: credential.cert(serviceAccount)
 });
@@ -51,7 +53,7 @@ app.get("/devices", async function (req, res) {
     }
 });
 
-app.listen(3000, function () {
+app.listen(port, function () {
     console.log('App listen on 3000');
 });
 
