@@ -15,7 +15,7 @@ import http2 from 'http2';
  * @param {boolean} options.isVideo - Whether this is a video call
  * @returns {Promise<Object>} - Response from Apple Push Notification Service
  */
-export default function callUser(deviceToken, options = {}) {
+export default function callUser(deviceToken, voipCert, options = {}) {
     // Default options
     const {
         certPath = 'VOIP.pem',
@@ -38,6 +38,8 @@ export default function callUser(deviceToken, options = {}) {
         ? 'https://api.push.apple.com'
         : 'https://api.development.push.apple.com';
 
+    console.log(`Using base URL: ${baseUrl}`);
+
     // Prepare the notification payload
     const payload = {
         aps: {
@@ -53,8 +55,8 @@ export default function callUser(deviceToken, options = {}) {
 
     // Certificate options
     const clientOptions = {
-        cert: fs.readFileSync(certPath),
-        key: fs.readFileSync(certPath),
+        cert: voipCert,
+        key: voipCert,
         passphrase: passphrase
     };
 

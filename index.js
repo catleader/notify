@@ -8,7 +8,11 @@ import callUser from './utils/callUser.js';
 
 const serviceAccount = JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT, 'base64').toString('utf-8'));
 
+const voipCert = Buffer.from(process.env.VOIP_ENCODED_CERT, 'base64');
+
 const port = process.env.PORT || 8080;
+
+const ENVIRONMENT = process.env.APP_ENVIRONMENT || 'development';
 
 initializeApp({
     credential: credential.cert(serviceAccount)
@@ -34,7 +38,7 @@ app.post('/notify/:deviceToken', async (req, res) => {
     const { deviceToken } = req.params;
 
     try {
-        await callUser(deviceToken, { environment: 'production' }); // Set environment to production
+        await callUser(deviceToken, voipCert, { environment: ENVIRONMENT }); // Set environment to production
         res.status(200).send({ message: 'Notification sent successfully' });
     } catch (err) {
         const { success, message, error } = err;
@@ -54,6 +58,6 @@ app.get("/devices", async function (req, res) {
 });
 
 app.listen(port, function () {
-    console.log('App listen on 3000');
+    console.log(`App listen on ${port} in ${ENVIRONMENT} mode`);
 });
 
