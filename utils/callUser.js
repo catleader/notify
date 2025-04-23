@@ -18,7 +18,6 @@ import http2 from 'http2';
 export default function callUser(deviceToken, voipCert, options = {}) {
     // Default options
     const {
-        certPath = 'VOIP.pem',
         passphrase = '1234xx',
         bundleId = 'com.pdkm.locpoc.voip',
         environment = 'development',
