@@ -23,15 +23,15 @@ const corsOptions = {
     origin: function (origin, callback) {
         // Allowed origins
         const allowedOrigins = ['https://fir-web-calling.web.app'];
-        
+
         // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
-        
+
         // Allow localhost connections for development
         if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
             return callback(null, true);
         }
-        
+
         if (allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
@@ -64,7 +64,22 @@ app.post("/send", async function (req, res) {
 app.post('/notify/:deviceToken', async (req, res) => {
     const { deviceToken } = req.params;
     try {
-        await callUser(deviceToken, voipCert, { environment: ENVIRONMENT });
+        const devices = await readDevicePushTokens();
+        const targetDevice = devices.find(device => device.pushToken === deviceToken);
+
+        if (!targetDevice) {
+            return res.status(404).json({ error: 'Device not found' });
+        }
+
+        const deviceNameLower = targetDevice.deviceName.toLowerCase();
+        if (deviceNameLower.includes('android')) {
+            await sendNotification(targetDevice.pushToken);
+        } else if(deviceNameLower.includes('ios')) {
+            await callUser(targetDevice.pushToken, voipCert, { environment: ENVIRONMENT });
+        } else {
+            return res.status(400).json({ error: 'Unsupported device type' });
+        }
+
         res.status(200).send({ message: 'Notification sent successfully' });
     } catch (err) {
         const { success, message, error } = err;

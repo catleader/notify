@@ -19,7 +19,8 @@ export default function callUser(deviceToken, voipCert, options = {}) {
     // Default options
     const {
         passphrase = '1234xx',
-        bundleId = 'com.pdkm.locpoc.voip',
+        // bundleId = 'com.pdkm.locpoc.voip',
+        bundleId = 'com.ios.paiduaytech.Daywork.lite.voip',
         environment = 'development',
         callerName = 'Daywork Support',
         handle = '0123456789',
