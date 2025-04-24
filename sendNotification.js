@@ -19,6 +19,7 @@ export async function sendNotification(fcmToken, options = {}) {
         handle: handle,
         isVideo: isVideo.toString(),
         id: uuid,
+        notificationTypeID: '38'
     };
 
     const message = {
